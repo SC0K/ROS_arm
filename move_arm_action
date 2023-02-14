@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import rospy
+import actionlib
+import moveit_commander
+from moveit_msgs.msg import MoveItErrorCodes
+from std_msgs.msg import Float32MultiArray
+from geometry_msgs.msg import PoseStamped
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
+from control_msgs.msg import GripperCommandAction, GripperCommandGoal
+from actionlib_msgs.msg import GoalStatus
+from MoveArm.msg import MoveArmAction, MoveArmGoal, MoveArmResult
+
+class MoveArmServer(object):
+    def __init__(self):
+        self._action_name = 'move_arm'
+        self._as = actionlib.SimpleActionServer(self._action_name, MoveArmAction, execute_cb=self.execute_cb, auto_start = False)
+        self._as.start()
+        self.move_group = moveit_commander.MoveGroupCommander('arm')
+        
+    def execute_cb(self, goal):
+        # Get the x, y, and z coordinates from the action goal
+        x = goal.x
+        y = goal.y
+        z = goal.z
+        
+        # Set the target position for the robot arm
+        target_pose = PoseStamped()
+        target_pose.header.frame_id = 'base_link'
+        target_pose.pose.position.x = x
+        target_pose.pose.position.y = y
+        target_pose.pose.position.z = z
+        
+        # Plan the robot arm movement to the target position
+        self.move_group.set_pose_target(target_pose)
+        plan = self.move_group.go(wait=True)
+        
+        # Check if the plan was successful
+        success = False
+        if plan:
+            success = True
+        
+        # Send the result message to the action client
+        result = MoveArmResult()
+        result.success = success
+        if success:
+            self._as.set_succeeded(result)
+        else:
+            self._as.set_aborted(result)
+
+if __name__ == '__main__':
+    rospy.init_node('move_arm_server')
+    server = MoveArmServer()
+    rospy.spin()
