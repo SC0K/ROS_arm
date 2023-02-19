@@ -6,28 +6,24 @@ import actionlib
 from geometry_msgs.msg import Pose
 
 if __name__ == '__main__':
-    rospy.init_node('pose_goal_client')
+    rospy.init_node('position_goal_client')
 
-    # Create an action client for the "executePoseGoal_as" action server
-    client = actionlib.SimpleActionClient('executePoseGoal_as', executePoseGoalAction)
+    # Create an action client for the "executePositionGoal_as" action server
+    client = actionlib.SimpleActionClient("executePositionGoal_as", executePoseGoalAction)
     client.wait_for_server()
 
     # Prompt the user for the goal coordinates
-    pose_goal = Pose()
-    pose_goal.position.x = float(input('Enter the x-coordinate of the goal position: '))
-    pose_goal.position.y = float(input('Enter the y-coordinate of the goal position: '))
-    pose_goal.position.z = float(input('Enter the z-coordinate of the goal position: '))
-    pose_goal.orientation.x = float(input('Enter the x-coordinate of the goal orientation: '))
-    pose_goal.orientation.y = float(input('Enter the y-coordinate of the goal orientation: '))
-    pose_goal.orientation.z = float(input('Enter the z-coordinate of the goal orientation: '))
-    pose_goal.orientation.w = float(input('Enter the w-coordinate of the goal orientation: '))
+    position_goal = Pose()
+    position_goal.position.x = float(input('Enter the x-coordinate of the goal position: '))
+    position_goal.position.y = float(input('Enter the y-coordinate of the goal position: '))
+    position_goal.position.z = float(input('Enter the z-coordinate of the goal position: '))
 
     # Create a goal message
-    goal = executePoseGoalGoal()
-    goal.goal_pose = pose_goal
+    #goal = executePoseGoalGoal()
+    #goal.goal_pose = pose_goal
 
     # Send the goal to the action server and wait for a result
-    client.send_goal(goal)
+    client.send_goal(position_goal)
     client.wait_for_result()
 
     # Print the result
